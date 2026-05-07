@@ -14,7 +14,7 @@ export const MENU_DATA: MenuItem[] = [
   { id: 2, category: 'makanan', name: 'Chicken Katsu Rice Bowl', price: 32000, emoji: '🥩', image: '/chikenkatsu.png' },
   { id: 3, category: 'makanan', name: 'Spaghetti Bolognese', price: 28000, emoji: '🍝', image: '/spagetibolognese.png' },
   { id: 4, category: 'makanan', name: 'Spaghetti Carbonara', price: 30000, emoji: '🍝', image: '/spageticarbonara.png' },
-  { id: 5, category: 'makanan', name: 'Beef Burger + French Fries', price: 35000, emoji: '🍔', image: '/coffe.png' },
+  { id: 5, category: 'makanan', name: 'Beef Burger + French Fries', price: 35000, emoji: '🍔', image: '/complit.png' },
   { id: 6, category: 'makanan', name: 'Chicken Sandwich', price: 27000, emoji: '🥪', image: '/Chicken Sandwich.png' },
   { id: 7, category: 'makanan', name: 'Rice Bowl Sambal Matah', price: 29000, emoji: '🌶️', image: '/Rice Bowl Sambal Matah.png' },
   { id: 8, category: 'makanan', name: 'Seblak', price: 15000, emoji: '🍲', image: '/seblak.png' },
