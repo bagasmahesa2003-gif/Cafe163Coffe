@@ -21,7 +21,7 @@ export async function kirimPesananKeAdmin(namaPelanggan: string, namaMenu: strin
       meja: nomorMeja,
       menu: namaMenu,
       jumlah: Number(jumlahPesanan),
-      waktu: new Date(),
+      waktu: new Date().toLocaleString("id-ID"), // Ubah ke string agar tidak crash di admin
       status: "pending"
     });
     console.log(`Pesanan ${namaMenu} berhasil masuk ke Admin!`);
