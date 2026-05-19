@@ -7,6 +7,7 @@ import React, { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { MENU_DATA, formatRupiah, MenuItem } from './data';
+import { kirimPesananKeAdmin } from './firebase';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'menu' | 'about'>('home');
@@ -15,6 +16,15 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tableNumber, setTableNumber] = useState<string>('');
   const [customerName, setCustomerName] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notification, setNotification] = useState<{message: string, type: 'success'|'error'} | null>(null);
+
+  const showNotification = (message: string, type: 'success'|'error') => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification(null);
+    }, 4000);
+  };
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -565,22 +575,54 @@ export default function App() {
               Reset
             </button>
             <button 
-              disabled={!tableNumber || !customerName.trim()}
-              onClick={() => {
-                if (!tableNumber || !customerName.trim()) return;
-                setIsModalOpen(false);
-                clearOrder();
-                alert(`Terima kasih ${customerName}, Pesanan Anda sedang diproses untuk Meja ${tableNumber}!`);
+              disabled={!tableNumber || !customerName.trim() || isSubmitting}
+              onClick={async () => {
+                if (!tableNumber || !customerName.trim() || isSubmitting) return;
+                
+                setIsSubmitting(true);
+                try {
+                  // Kirim setiap pesanan ke admin
+                  for (const item of selectedItems) {
+                    await kirimPesananKeAdmin(customerName.trim(), item.name, item.qty, tableNumber);
+                  }
+
+                  setIsModalOpen(false);
+                  clearOrder();
+                  showNotification(`Terima kasih ${customerName}, Pesanan Anda sedang diproses untuk Meja ${tableNumber}!`, 'success');
+                } catch (error: any) {
+                  console.error(error);
+                  showNotification(`Maaf, terjadi kesalahan saat mengirim pesanan: ${error.message || "Silakan coba lagi (periksa konfigurasi database Anda)."}`, 'error');
+                } finally {
+                  setIsSubmitting(false);
+                }
               }}
               className={`flex-[2] py-3.5 rounded-xl text-[14px] font-bold text-[var(--color-espresso)] shadow-[0_4px_15px_rgba(200,120,10,0.3)] transition-all
-                ${(!tableNumber || !customerName.trim()) ? 'opacity-50 cursor-not-allowed' : 'active:scale-95 hover:scale-[1.02]'}`}
+                ${(!tableNumber || !customerName.trim() || isSubmitting) ? 'opacity-50 cursor-not-allowed' : 'active:scale-95 hover:scale-[1.02]'}`}
               style={{ background: 'linear-gradient(135deg, var(--color-amber), var(--color-gold))' }}
             >
-              Kirim Order
+              {isSubmitting ? 'Mengirim...' : 'Kirim Order'}
             </button>
           </div>
         </div>
       </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {notification && (
+          <motion.div 
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className={`fixed top-4 left-1/2 -translate-x-1/2 z-[400] max-w-[90vw] w-[400px] p-4 rounded-xl shadow-2xl flex items-start gap-3 border ${
+              notification.type === 'success' 
+                ? 'bg-[var(--color-dark-brown)] border-[var(--color-gold)] text-[var(--color-cream)]' 
+                : 'bg-red-950 border-red-500 text-red-100'
+            }`}
+          >
+            <div className="flex-1 text-sm">{notification.message}</div>
+            <button onClick={() => setNotification(null)} className="text-xl opacity-70 hover:opacity-100">&times;</button>
           </motion.div>
         )}
       </AnimatePresence>
